@@ -1,0 +1,103 @@
+services:
+    backend-dev:
+        container_name: backend-dev
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+            target: development
+        ports:
+            - "8080:8080"
+        env_file:
+            - ./backend/.env
+        volumes:
+            - ./backend/src:/backend/src
+            - backend-gradle:/backend/.gradle
+        networks:
+            - common-network
+        depends_on:
+            - postgres
+            - redis
+        tty: true
+        stdin_open: true
+
+    frontend-dev:
+        container_name: frontend-dev
+        build:
+            context: ./frontend
+            dockerfile: Dockerfile
+            target: development
+        ports:
+            - "3001:3000"
+        env_file:
+            - ./frontend/.env
+        volumes:
+            - ./frontend/:/app/
+            - ./frontend/package.json:/app/package.json
+            - ./frontend/package-lock.json:/app/package-lock.json
+            - frontend:/app/node_modules
+        environment:
+            WATCHPACK_POLLING: true
+        networks:
+            - common-network
+
+    postgres:
+        container_name: postgres-b1f921cd
+        image: postgres:17
+        environment:
+            POSTGRES_USER:
+            POSTGRES_PASSWORD:
+            POSTGRES_DB: app
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+        networks:
+            - common-network
+
+    pgadmin:
+        image: dpage/pgadmin4:9.5.0
+        container_name: pgadmin-b1f921cd
+        expose:
+            - 8888
+        ports:
+            - 8888:80
+        environment:
+            PGADMIN_DEFAULT_EMAIL:
+            PGADMIN_DEFAULT_PASSWORD:
+        volumes:
+            - pgadmin-data:/var/lib/pgadmin
+        depends_on:
+            - postgres
+        networks:
+            - common-network
+
+    redis:
+        container_name: redis-b1f921cd
+        image: redis:8.2-alpine
+        command: redis-server --requirepass your_redis_pass
+        volumes:
+            - redis-data:/data
+        networks:
+            - common-network
+
+    redis-insight:
+        container_name: redis-insight-b1f921cd
+        image: redis/redisinsight:latest
+        ports:
+            - 5540:5540
+        volumes:
+            - redis-insight-data:/db
+        depends_on:
+            - redis
+        networks:
+            - common-network
+
+volumes:
+    frontend:
+    backend-gradle:
+    postgres-data:
+    pgadmin-data:
+    redis-data:
+    redis-insight-data:
+
+networks:
+    common-network:
+        driver: bridge
