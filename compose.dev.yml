@@ -14,6 +14,7 @@ services:
         volumes:
             - ./backend/src:/backend/src
             - backend-gradle:/backend/.gradle
+            - ./backend/build:/backend/build
         networks:
             - common-network
         depends_on:
