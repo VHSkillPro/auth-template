@@ -5,6 +5,8 @@ services:
             context: ./backend
             dockerfile: Dockerfile
             target: development
+        expose:
+            - ${SERVER_PORT}
         ports:
             - "${SERVER_PORT}:${SERVER_PORT}"
         env_file:
@@ -24,6 +26,8 @@ services:
             context: ./frontend
             dockerfile: Dockerfile
             target: development
+        expose:
+            - ${FRONTEND_PORT}
         ports:
             - "${FRONTEND_PORT}:${FRONTEND_PORT}"
         env_file:
@@ -35,6 +39,7 @@ services:
             - frontend:/app/node_modules
         environment:
             WATCHPACK_POLLING: true
+            PORT: ${FRONTEND_PORT}
         networks:
             - common-network
 
